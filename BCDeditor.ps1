@@ -1,8 +1,16 @@
-﻿#-------------------------
+﻿# This script takes as hardcoded parameter the desired order of boot
+# devices set in the UEFI firmware. These devices are specified using
+# their descriptor. Any other devices are appended after the specified
+# devices in their original order
+# 
+# This is needed because Windows likes to place its boot mgr first in
+# the UEFI list, at least after a reimage of our systems. We need to
+# keep PXE boot on top.
+
+#-------------------------
 # parameters:
 # hardcode which must be first, second, etc
 $desiredOrder = @("ubuntu","Windows Boot Manager")
-$desiredOrder = @("Windows Boot Manager","usb","ubuntu")
 
 #-------------------------
 # helper functions
@@ -119,4 +127,6 @@ echo `n
 # build command
 $cmd = 'cmd /c bcdedit /set "{fwbootmgr}" displayorder "' + ($newIdentifiers -join """ """) + """"
 echo "will execute:" $cmd
+
+# execute
 Invoke-Expression $cmd
