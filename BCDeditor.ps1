@@ -55,7 +55,7 @@ function BCDOutputToDict {
 # start actual code
 
 # if not elevated, then elevate
-If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+If (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
 {
   # Relaunch as an elevated process:
   Start-Process powershell.exe "-File",('"{0}"' -f $MyInvocation.MyCommand.Path) -Verb RunAs
@@ -108,25 +108,33 @@ ForEach ($item in $currentOrder)
         $newOrder += $item
     }
 }
-echo "New boot order:"
-echo $newOrder
-echo `n
+
 
 #-------------------------
-# put boot menu into new order
-
-# first, get identifiers corresponding to labels
-$newIdentifiers = ForEach ($item in $newOrder)
+# put boot menu into new order, if different from current
+If (-Not @(Compare-Object $currentOrder $newOrder -SyncWindow 0).Length -eq 0)
 {
-    $bootDict.Values | % { if($_["description"] -eq $item){$_["identifier"]}}
+    echo "New boot order:"
+    echo $newOrder
+    echo `n
+
+    # first, get identifiers corresponding to labels
+    $newIdentifiers = ForEach ($item in $newOrder)
+    {
+        $bootDict.Values | % { if($_["description"] -eq $item){$_["identifier"]}}
+    }
+    echo "corresponding identifiers:"
+    echo $newIdentifiers
+    echo `n
+
+    # build command
+    $cmd = 'cmd /c bcdedit /set "{fwbootmgr}" displayorder "' + ($newIdentifiers -join """ """) + """"
+    echo "will execute:" $cmd
+
+    # execute
+    Invoke-Expression $cmd
 }
-echo "corresponding identifiers:"
-echo $newIdentifiers
-echo `n
-
-# build command
-$cmd = 'cmd /c bcdedit /set "{fwbootmgr}" displayorder "' + ($newIdentifiers -join """ """) + """"
-echo "will execute:" $cmd
-
-# execute
-Invoke-Expression $cmd
+Else
+{
+    echo "current order is fine, nothing to do"
+}
