@@ -117,7 +117,7 @@ If (-Not @(Compare-Object $currentOrder $newOrder -SyncWindow 0).Length -eq 0)
     echo "New boot order:"
     echo $newOrder
     echo `n
-
+    
     # first, get identifiers corresponding to labels
     $newIdentifiers = ForEach ($item in $newOrder)
     {

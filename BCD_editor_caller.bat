@@ -1,0 +1,1 @@
+Powershell.exe -executionpolicy remotesigned -File  BCD_editor.ps1
