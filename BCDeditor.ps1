@@ -10,7 +10,7 @@
 #-------------------------
 # parameters:
 # hardcode which must be first, second, etc
-$desiredOrder = @("ubuntu","Windows Boot Manager")
+$desiredOrder = @("IBA GE Slot 0200 v1573","Windows Boot Manager")
 
 #-------------------------
 # helper functions
